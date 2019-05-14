@@ -1,11 +1,10 @@
 import React from 'react';
-import { Router, Route, Redirect } from "react-router-dom";
-import Home from './Home/Home'
-import Auth from './Auth/Auth.js';
+import { Route, Router } from 'react-router-dom';
+import App from './App';
+import Home from './Home/Home';
+import Callback from './Callback/Callback';
+import Auth from './Auth/Auth';
 import history from './history';
-import Callback from './Callback/Callback'
-import Interface from './Interface'
-import SignUpForm from './SignUp/SignUpForm'
 
 const auth = new Auth();
 
@@ -19,16 +18,12 @@ export const makeMainRoutes = () => {
   return (
     <Router history={history}>
       <div>
-        <Route path="/" render={(props) => <Interface auth={auth} {...props} />} />
+        <Route path="/" render={(props) => <App auth={auth} {...props} />} />
         <Route path="/home" render={(props) => <Home auth={auth} {...props} />} />
-        <Route path="/signup" render={(props) => (
-            !auth.isAuthenticated() ? (
-              <Redirect to="/home"/>
-            ) : (
-              <SignUpForm auth={auth} {...props} />
-            )
-          )} />        
-          <Route path="/callback" render={(props) => { handleAuthentication(props); return <Callback auth={auth} /> }} />
+        <Route path="/callback" render={(props) => {
+          handleAuthentication(props);
+          return <Callback {...props} />
+        }} />
       </div>
     </Router>
   );
