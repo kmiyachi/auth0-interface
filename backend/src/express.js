@@ -81,7 +81,7 @@ var enrollAdmin = async function (id, pw) {
 
 enrollAdmin('admin','adminpw');
 
-var register = async function (username, password) {
+var register = async function (username) {
     try {
 
         const userExists = await wallet.exists(username);
@@ -105,9 +105,9 @@ var register = async function (username, password) {
         const ca = gateway.getClient().getCertificateAuthority();
         const adminIdentity = gateway.getCurrentIdentity();
         // Register the user, enroll the user, and import the new identity into the wallet.
-        const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: username, enrollmentSecret: password, role: 'client' }, adminIdentity);
+        const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: username, role: 'client' }, adminIdentity);
         console.log(secret);
-        const enrollment = await ca.enroll({ enrollmentID: username, enrollmentSecret: password });
+        const enrollment = await ca.enroll({ enrollmentID: username });
         const userIdentity = X509WalletMixin.createIdentity('Org1MSP', enrollment.certificate, enrollment.key.toBytes());
         wallet.import(username, userIdentity);
         console.log('Successfully registered and enrolled admin user "' + username + '" and imported it into the wallet');
@@ -119,7 +119,7 @@ var register = async function (username, password) {
     }
 }
 
-var login = async function (username, password) {
+var login = async function (username) {
     // Checks wallet to determine if a user is registered in the HF Network
     // Renders a new page if credentials check out
     console.log('Logging In...');
@@ -131,14 +131,15 @@ var login = async function (username, password) {
             console.log(user_path);
             let json = JSON.parse(fs.readFileSync(user_path, 'utf8'));
             console.log(json);
-            if (password === json.enrollmentSecret) {
+            // if (password === json.enrollmentSecret) {
                 console.log('Login Successful!');
-                return true;
-            }
-            else {
-                console.log('Password is Incorrect');
-                return false;
-            }
+            //     return true;
+            // }
+            // else {
+            //     console.log('Password is Incorrect');
+            //     return false;
+            // }
+            return true;
         }
         else {
             console.log('User does not exist');
@@ -152,8 +153,8 @@ var login = async function (username, password) {
 
 app.use('/register', function (req, res) {
     var username = req.body.username;
-    var password = req.body.password;
-    register(username, password).then(function(result){
+    // var password = req.body.password;
+    register(username).then(function(result){
         if (!result) {
             res.status(200).json({ message: 'OK'});
         } else {
@@ -177,8 +178,8 @@ app.use('/enroll', function (req, res) {
 
 app.use('/login', function (req, res) {
     var username = req.body.username;
-    var password = req.body.password;
-    login(username, password).then(function(result){
+    // var password = req.body.password;
+    login(username).then(function(result){
         if (result) {
             res.status(200).json({ message: 'OK' });
         } else {

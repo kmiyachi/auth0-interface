@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
 import { Panel, ControlLabel, Glyphicon } from 'react-bootstrap';
 import './Profile.css';
+import $ from 'jquery';
 
 class Profile extends Component {
+
   componentWillMount() {
+    console.log("componentMounts")
     this.setState({ profile: {} });
     const { userProfile, getProfile } = this.props.auth;
     if (!userProfile) {
@@ -14,9 +17,56 @@ class Profile extends Component {
       this.setState({ profile: userProfile });
     }
   }
+  callRegister(user) {
+    $.ajax({
+      url: 'http://localhost:4000/register',
+      type: 'POST',
+      contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+      crossDomain: true,
+      dataType: 'json',
+      xhrFields: { withCredentials: true },
+      data: {
+        username: user,
+      },
+      success: (data) => {
+        if (data.message === "OK") {
+          this.registration_errmsg = "";
+          console.log('regis success');
+        } else {
+          this.registration_errmsg = data.result;
+          console.log(this.registration_errmsg);
+          console.log('regis failure');
+        }
+      }
+    });
+  }
+  callLogin(user) {
+    $.ajax({
+      url: 'http://localhost:4000/login',
+      type: 'POST',
+      contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+      crossDomain: true,
+      dataType: 'json',
+      xhrFields: { withCredentials: true },
+      data: {
+        username: user,
+      },
+      success: (data) => {
+        if (data.message === "OK") {
+          console.log('login success');
+        } else {
+          console.log('login failure '+user);
+          this.callRegister(user);
+        }
+      }
+    });
+  }
   render() {
     const { profile } = this.state;
     console.log(profile)
+    if(profile.nickname){
+      this.callLogin(profile.nickname);
+    }
     return (
       <div className="container">
         <div className="profile-area">
